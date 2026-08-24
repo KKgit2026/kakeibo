@@ -1,710 +1,456 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
->
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>家計簿</title>
 
-
 <style>
-
-/* =========================
-   基本
-========================= */
-
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
 
-html,
-body {
-
+html, body {
   margin: 0;
   padding: 0;
-
-  width: 100%;
-
   background: #111827;
-
-  color: #ffffff;
-
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Arial,
-    sans-serif;
-
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
 }
 
 body {
-
   min-height: 100vh;
-
   overflow-x: hidden;
-
 }
-
-
-/* =========================
-   アプリ
-========================= */
 
 .app {
-
   width: 100%;
-
-  max-width: 520px;
-
+  max-width: 560px;
   margin: 0 auto;
-
-  padding:
-    18px
-    14px
-    30px;
-
+  padding: 16px 12px 32px;
 }
-
-
-/* =========================
-   タイトル
-========================= */
 
 h1 {
-
-  margin: 5px 0 18px;
-
+  margin: 4px 0 16px;
   text-align: center;
-
-  font-size: 26px;
-
+  font-size: 25px;
 }
 
+/* 月切り替え */
+.month-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
 
-/* =========================
-   今月の合計
-========================= */
-
-.summary {
-
-  padding: 20px;
-
-  margin-bottom: 15px;
-
+.month-button {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 10px;
   background: #1f2937;
+  color: #fff;
+  font-size: 22px;
+}
 
-  border-radius: 16px;
-
+.month-title {
+  flex: 1;
   text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+}
 
+/* 合計 */
+.summary {
+  padding: 18px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background: #1f2937;
+  text-align: center;
 }
 
 .summary-label {
-
   color: #9ca3af;
-
   font-size: 13px;
-
 }
 
 .summary-amount {
-
-  margin-top: 5px;
-
-  font-size: 32px;
-
+  margin-top: 4px;
+  font-size: 31px;
   font-weight: bold;
-
 }
 
-
-/* =========================
-   入力エリア
-========================= */
-
-.form {
-
-  padding: 16px;
-
-  margin-bottom: 15px;
-
-  background: #1f2937;
-
-  border-radius: 16px;
-
-}
-
-
-.form-title {
-
+/* カテゴリ集計 */
+.category-summary {
   margin-bottom: 12px;
-
-  font-size: 17px;
-
-  font-weight: bold;
-
+  padding: 15px;
+  border-radius: 16px;
+  background: #1f2937;
 }
 
+.section-title {
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: bold;
+}
 
-/* =========================
-   入力
-========================= */
+.category-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid #374151;
+  font-size: 14px;
+}
+
+.category-row:last-child {
+  border-bottom: none;
+}
+
+/* 入力 */
+.form {
+  margin-bottom: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #1f2937;
+}
 
 .field {
-
   margin-bottom: 10px;
-
 }
 
 .field label {
-
   display: block;
-
   margin-bottom: 4px;
-
   color: #9ca3af;
-
   font-size: 12px;
-
 }
-
 
 input,
 select {
-
   width: 100%;
-
   padding: 12px;
-
   border: 1px solid #374151;
-
   border-radius: 10px;
-
   outline: none;
-
   background: #111827;
-
-  color: white;
-
+  color: #fff;
   font-size: 16px;
-
 }
-
 
 input:focus,
 select:focus {
-
   border-color: #3b82f6;
-
 }
-
-
-/* =========================
-   追加ボタン
-========================= */
 
 .add-button {
-
   width: 100%;
-
   padding: 13px;
-
-  margin-top: 3px;
-
   border: none;
-
   border-radius: 10px;
-
   background: #3b82f6;
-
-  color: white;
-
+  color: #fff;
   font-size: 16px;
-
   font-weight: bold;
-
-  cursor: pointer;
-
 }
 
-.add-button:active {
-
-  transform: scale(.97);
-
+.cancel-button {
+  display: none;
+  width: 100%;
+  margin-top: 8px;
+  padding: 11px;
+  border: none;
+  border-radius: 10px;
+  background: #374151;
+  color: #fff;
+  font-size: 15px;
 }
 
-
-/* =========================
-   自動保存表示
-========================= */
-
+/* 保存表示 */
 .save-status {
-
-  min-height: 20px;
-
-  margin: 7px 0;
-
+  min-height: 18px;
+  margin-top: 8px;
   color: #6ee7b7;
-
   font-size: 12px;
-
   text-align: center;
-
 }
 
-
-/* =========================
-   一覧
-========================= */
-
-.list {
-
-  padding: 16px;
-
-  background: #1f2937;
-
-  border-radius: 16px;
-
-}
-
-
-.list-title {
-
+/* 検索 */
+.filter-box {
   margin-bottom: 12px;
-
-  font-size: 17px;
-
-  font-weight: bold;
-
+  padding: 14px;
+  border-radius: 16px;
+  background: #1f2937;
 }
 
+.filter-row {
+  display: flex;
+  gap: 8px;
+}
 
-/* =========================
-   支出
-========================= */
+.filter-row input {
+  flex: 1;
+}
+
+.filter-row select {
+  width: 120px;
+}
+
+/* 一覧 */
+.list {
+  padding: 16px;
+  border-radius: 16px;
+  background: #1f2937;
+}
 
 .expense {
-
   display: flex;
-
   align-items: center;
-
-  gap: 10px;
-
+  gap: 9px;
   padding: 12px 0;
-
   border-bottom: 1px solid #374151;
-
 }
-
 
 .expense:last-child {
-
   border-bottom: none;
-
 }
-
 
 .expense-info {
-
   flex: 1;
-
   min-width: 0;
-
 }
-
 
 .expense-category {
-
   font-size: 14px;
-
   font-weight: bold;
-
 }
-
 
 .expense-detail {
-
   margin-top: 3px;
-
   color: #9ca3af;
-
   font-size: 11px;
-
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
 
 .expense-amount {
-
   font-size: 15px;
-
   font-weight: bold;
-
   white-space: nowrap;
-
 }
 
+.action-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: #374151;
+  color: #fff;
+  font-size: 14px;
+}
 
 .delete-button {
-
-  width: 32px;
-
-  height: 32px;
-
-  padding: 0;
-
-  border: none;
-
-  border-radius: 8px;
-
-  background: #374151;
-
   color: #fca5a5;
-
-  cursor: pointer;
-
 }
-
-
-.delete-button:active {
-
-  background: #ef4444;
-
-  color: white;
-
-}
-
-
-/* =========================
-   データなし
-========================= */
 
 .empty {
-
-  padding: 25px 10px;
-
+  padding: 24px 10px;
   color: #9ca3af;
-
   text-align: center;
-
   font-size: 13px;
-
 }
 
-
-/* =========================
-   小さいスマホ
-========================= */
+.count {
+  margin-top: 10px;
+  color: #9ca3af;
+  text-align: right;
+  font-size: 11px;
+}
 
 @media (max-width: 380px) {
-
   .app {
-
-    padding:
-      12px
-      10px
-      25px;
-
+    padding: 12px 9px 25px;
   }
 
-  h1 {
-
-    font-size: 23px;
-
-  }
-
-  .summary {
-
-    padding: 16px;
-
+  .filter-row select {
+    width: 105px;
   }
 
   .summary-amount {
-
-    font-size: 28px;
-
+    font-size: 27px;
   }
-
 }
-
 </style>
-
 </head>
-
 
 <body>
 
-
 <div class="app">
 
+  <h1>💰 家計簿</h1>
 
-  <h1>
-    💰 家計簿
-  </h1>
-
-
-  <!-- =====================
-       合計
-  ====================== -->
-
-  <div class="summary">
-
-    <div class="summary-label">
-      今月の支出
-    </div>
-
-    <div
-      id="total"
-      class="summary-amount"
-    >
-      ¥0
-    </div>
-
+  <div class="month-bar">
+    <button class="month-button" id="prevMonth">‹</button>
+    <div class="month-title" id="monthTitle"></div>
+    <button class="month-button" id="nextMonth">›</button>
   </div>
 
+  <div class="summary">
+    <div class="summary-label">表示中の月の支出</div>
+    <div class="summary-amount" id="total">¥0</div>
+  </div>
 
-  <!-- =====================
-       入力
-  ====================== -->
+  <div class="category-summary">
+    <div class="section-title">📊 カテゴリ別</div>
+    <div id="categorySummary"></div>
+  </div>
 
   <div class="form">
 
-    <div class="form-title">
+    <div class="section-title" id="formTitle">
       支出を追加
     </div>
 
-
     <div class="field">
-
-      <label>
-        金額
-      </label>
-
-      <input
-        id="amount"
-        type="number"
-        inputmode="numeric"
-        placeholder="例：1280"
-      >
-
+      <label>金額</label>
+      <input id="amount" type="number" inputmode="numeric" placeholder="例：1280">
     </div>
 
-
     <div class="field">
-
-      <label>
-        カテゴリ
-      </label>
-
+      <label>カテゴリ</label>
       <select id="category">
-
-        <option value="食費">
-          🍚 食費
-        </option>
-
-        <option value="日用品">
-          🛒 日用品
-        </option>
-
-        <option value="交通費">
-          🚃 交通費
-        </option>
-
-        <option value="趣味">
-          🎮 趣味
-        </option>
-
-        <option value="光熱費">
-          💡 光熱費
-        </option>
-
-        <option value="通信費">
-          📱 通信費
-        </option>
-
-        <option value="その他">
-          📦 その他
-        </option>
-
+        <option value="食費">🍚 食費</option>
+        <option value="日用品">🛒 日用品</option>
+        <option value="交通費">🚃 交通費</option>
+        <option value="趣味">🎮 趣味</option>
+        <option value="光熱費">💡 光熱費</option>
+        <option value="通信費">📱 通信費</option>
+        <option value="その他">📦 その他</option>
       </select>
-
     </div>
-
 
     <div class="field">
-
-      <label>
-        日付
-      </label>
-
-      <input
-        id="date"
-        type="date"
-      >
-
+      <label>日付</label>
+      <input id="date" type="date">
     </div>
-
 
     <div class="field">
-
-      <label>
-        メモ（任意）
-      </label>
-
-      <input
-        id="memo"
-        type="text"
-        placeholder="例：スーパー"
-      >
-
+      <label>メモ</label>
+      <input id="memo" type="text" placeholder="例：スーパー">
     </div>
 
-
-    <button
-      id="addButton"
-      class="add-button"
-    >
+    <button class="add-button" id="addButton">
       ＋ 支出を追加
     </button>
 
+    <button class="cancel-button" id="cancelButton">
+      編集をキャンセル
+    </button>
 
-    <div
-      id="saveStatus"
-      class="save-status"
-    ></div>
-
+    <div class="save-status" id="saveStatus"></div>
   </div>
 
+  <div class="filter-box">
 
-  <!-- =====================
-       一覧
-  ====================== -->
+    <div class="section-title">🔎 検索・絞り込み</div>
+
+    <div class="filter-row">
+
+      <input
+        id="search"
+        type="search"
+        placeholder="メモやカテゴリを検索"
+      >
+
+      <select id="filterCategory">
+        <option value="すべて">すべて</option>
+        <option value="食費">食費</option>
+        <option value="日用品">日用品</option>
+        <option value="交通費">交通費</option>
+        <option value="趣味">趣味</option>
+        <option value="光熱費">光熱費</option>
+        <option value="通信費">通信費</option>
+        <option value="その他">その他</option>
+      </select>
+
+    </div>
+  </div>
 
   <div class="list">
 
-    <div class="list-title">
-      支出一覧
-    </div>
+    <div class="section-title">📋 支出一覧</div>
 
+    <div id="expenseList"></div>
 
-    <div id="expenseList">
-
-      <div class="empty">
-        まだ支出はありません
-      </div>
-
-    </div>
+    <div class="count" id="count"></div>
 
   </div>
 
-
 </div>
-
 
 <script>
 
-/* =========================
-   保存キー
-========================= */
+const STORAGE_KEY = "myHouseholdExpenses";
 
-const STORAGE_KEY =
-  "myHouseholdExpenses";
+const amountInput = document.getElementById("amount");
+const categoryInput = document.getElementById("category");
+const dateInput = document.getElementById("date");
+const memoInput = document.getElementById("memo");
 
+const addButton = document.getElementById("addButton");
+const cancelButton = document.getElementById("cancelButton");
 
-/* =========================
-   要素
-========================= */
+const expenseList = document.getElementById("expenseList");
+const totalElement = document.getElementById("total");
+const categorySummary = document.getElementById("categorySummary");
+const saveStatus = document.getElementById("saveStatus");
+const countElement = document.getElementById("count");
 
-const amountInput =
-  document.getElementById("amount");
+const monthTitle = document.getElementById("monthTitle");
+const prevMonth = document.getElementById("prevMonth");
+const nextMonth = document.getElementById("nextMonth");
 
-const categoryInput =
-  document.getElementById("category");
+const searchInput = document.getElementById("search");
+const filterCategory = document.getElementById("filterCategory");
 
-const dateInput =
-  document.getElementById("date");
+let expenses = JSON.parse(
+  localStorage.getItem(STORAGE_KEY)
+) || [];
 
-const memoInput =
-  document.getElementById("memo");
+let selectedMonth = new Date();
+let editingId = null;
 
-const addButton =
-  document.getElementById("addButton");
+const categories = [
+  "食費",
+  "日用品",
+  "交通費",
+  "趣味",
+  "光熱費",
+  "通信費",
+  "その他"
+];
 
-const expenseList =
-  document.getElementById("expenseList");
-
-const totalElement =
-  document.getElementById("total");
-
-const saveStatus =
-  document.getElementById("saveStatus");
-
-
-/* =========================
-   データ
-========================= */
-
-let expenses =
-  JSON.parse(
-    localStorage.getItem(
-      STORAGE_KEY
-    )
-  ) || [];
-
-
-/* =========================
-   今日の日付
-========================= */
-
-const today =
-  new Date();
-
-const yyyy =
-  today.getFullYear();
-
-const mm =
-  String(
-    today.getMonth() + 1
-  ).padStart(2, "0");
-
-const dd =
-  String(
-    today.getDate()
-  ).padStart(2, "0");
-
-
-dateInput.value =
-  `${yyyy}-${mm}-${dd}`;
-
-
-/* =========================
-   金額表示
-========================= */
-
-function formatYen(
-  value
-) {
-
-  return "¥" +
-    Number(value)
-      .toLocaleString(
-        "ja-JP"
-      );
-
+function formatYen(value) {
+  return "¥" + Number(value).toLocaleString("ja-JP");
 }
 
+function getTodayString() {
+  const d = new Date();
 
-/* =========================
-   保存
-========================= */
+  return (
+    d.getFullYear() +
+    "-" +
+    String(d.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(d.getDate()).padStart(2, "0")
+  );
+}
+
+dateInput.value = getTodayString();
 
 function saveExpenses() {
 
@@ -713,379 +459,501 @@ function saveExpenses() {
     JSON.stringify(expenses)
   );
 
-
   saveStatus.textContent =
-    "✓ 自動保存しました";
+    `✓ 自動保存しました　保存データ：${expenses.length}件`;
 
-
-  setTimeout(
-    () => {
-
-      saveStatus.textContent =
-        "";
-
-    },
-    1800
-  );
-
+  setTimeout(() => {
+    saveStatus.textContent = "";
+  }, 2500);
 }
 
+function getMonthKey(date) {
 
-/* =========================
-   今月判定
-========================= */
-
-function isThisMonth(
-  date
-) {
-
-  const d =
-    new Date(date);
-
-
-  const now =
-    new Date();
-
+  const d = new Date(date);
 
   return (
-    d.getFullYear() ===
-      now.getFullYear()
-
-    &&
-
-    d.getMonth() ===
-      now.getMonth()
+    d.getFullYear() +
+    "-" +
+    String(d.getMonth() + 1).padStart(2, "0")
   );
+}
+
+function getSelectedMonthKey() {
+
+  return (
+    selectedMonth.getFullYear() +
+    "-" +
+    String(selectedMonth.getMonth() + 1).padStart(2, "0")
+  );
+}
+
+function updateMonthTitle() {
+
+  monthTitle.textContent =
+    `${selectedMonth.getFullYear()}年${selectedMonth.getMonth() + 1}月`;
 
 }
 
+function getMonthExpenses() {
 
-/* =========================
-   合計更新
-========================= */
+  const key = getSelectedMonthKey();
+
+  return expenses.filter(
+    expense =>
+      getMonthKey(expense.date) === key
+  );
+}
 
 function updateTotal() {
 
+  const monthExpenses =
+    getMonthExpenses();
+
   const total =
-    expenses
-
-      .filter(
-        expense =>
-          isThisMonth(
-            expense.date
-          )
-      )
-
-      .reduce(
-        (
-          sum,
-          expense
-        ) =>
-          sum +
-          Number(
-            expense.amount
-          ),
-
-        0
-      );
-
+    monthExpenses.reduce(
+      (sum, expense) =>
+        sum + Number(expense.amount),
+      0
+    );
 
   totalElement.textContent =
     formatYen(total);
-
 }
 
+function updateCategorySummary() {
 
-/* =========================
-   一覧表示
-========================= */
+  const monthExpenses =
+    getMonthExpenses();
 
-function renderExpenses() {
+  categorySummary.innerHTML = "";
 
-  expenseList.innerHTML =
-    "";
+  const totals = {};
 
+  categories.forEach(category => {
+    totals[category] = 0;
+  });
 
-  if (
-    expenses.length === 0
-  ) {
+  monthExpenses.forEach(expense => {
 
-    expenseList.innerHTML =
+    if (totals[expense.category] !== undefined) {
+      totals[expense.category] +=
+        Number(expense.amount);
+    }
 
+  });
+
+  const usedCategories =
+    categories.filter(
+      category =>
+        totals[category] > 0
+    );
+
+  if (usedCategories.length === 0) {
+
+    categorySummary.innerHTML =
       `<div class="empty">
-        まだ支出はありません
+        この月の支出はありません
       </div>`;
 
-    updateTotal();
-
     return;
+  }
+
+  usedCategories.forEach(category => {
+
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "category-row";
+
+    row.innerHTML =
+      `<span>${category}</span>
+       <strong>${formatYen(totals[category])}</strong>`;
+
+    categorySummary.appendChild(row);
+
+  });
+}
+
+function getFilteredExpenses() {
+
+  let list =
+    getMonthExpenses();
+
+  const search =
+    searchInput.value
+      .trim()
+      .toLowerCase();
+
+  const selectedCategory =
+    filterCategory.value;
+
+  if (search) {
+
+    list = list.filter(expense => {
+
+      const text =
+        (
+          expense.category +
+          " " +
+          expense.memo +
+          " " +
+          expense.date
+        ).toLowerCase();
+
+      return text.includes(search);
+
+    });
 
   }
 
+  if (
+    selectedCategory !== "すべて"
+  ) {
 
-  /*
-    新しい順
-  */
-
-  const sorted =
-    [...expenses].sort(
-      (a, b) =>
-        b.date.localeCompare(
-          a.date
-        )
+    list = list.filter(
+      expense =>
+        expense.category ===
+        selectedCategory
     );
 
+  }
 
-  sorted.forEach(
-    expense => {
-
-
-      const item =
-        document.createElement(
-          "div"
-        );
-
-      item.className =
-        "expense";
-
-
-      const info =
-        document.createElement(
-          "div"
-        );
-
-      info.className =
-        "expense-info";
-
-
-      const category =
-        document.createElement(
-          "div"
-        );
-
-      category.className =
-        "expense-category";
-
-      category.textContent =
-        expense.category;
-
-
-      const detail =
-        document.createElement(
-          "div"
-        );
-
-      detail.className =
-        "expense-detail";
-
-      detail.textContent =
-        expense.date +
-        (
-          expense.memo
-            ? "　" +
-              expense.memo
-            : ""
-        );
-
-
-      info.appendChild(
-        category
-      );
-
-      info.appendChild(
-        detail
-      );
-
-
-      const amount =
-        document.createElement(
-          "div"
-        );
-
-      amount.className =
-        "expense-amount";
-
-      amount.textContent =
-        formatYen(
-          expense.amount
-        );
-
-
-      const deleteButton =
-        document.createElement(
-          "button"
-        );
-
-      deleteButton.className =
-        "delete-button";
-
-      deleteButton.textContent =
-        "🗑️";
-
-
-      deleteButton.addEventListener(
-        "click",
-        () => {
-
-          expenses =
-            expenses.filter(
-              e =>
-                e.id !==
-                expense.id
-            );
-
-
-          saveExpenses();
-
-          renderExpenses();
-
-        }
-      );
-
-
-      item.appendChild(
-        info
-      );
-
-      item.appendChild(
-        amount
-      );
-
-      item.appendChild(
-        deleteButton
-      );
-
-
-      expenseList.appendChild(
-        item
-      );
-
-    }
+  return list.sort(
+    (a, b) =>
+      b.date.localeCompare(a.date) ||
+      b.id - a.id
   );
-
-
-  updateTotal();
-
 }
 
+function renderExpenses() {
 
-/* =========================
-   支出追加
-========================= */
+  expenseList.innerHTML = "";
+
+  const list =
+    getFilteredExpenses();
+
+  if (list.length === 0) {
+
+    expenseList.innerHTML =
+      `<div class="empty">
+        該当する支出はありません
+      </div>`;
+
+  }
+
+  list.forEach(expense => {
+
+    const item =
+      document.createElement("div");
+
+    item.className = "expense";
+
+    const info =
+      document.createElement("div");
+
+    info.className =
+      "expense-info";
+
+    const category =
+      document.createElement("div");
+
+    category.className =
+      "expense-category";
+
+    category.textContent =
+      expense.category;
+
+    const detail =
+      document.createElement("div");
+
+    detail.className =
+      "expense-detail";
+
+    detail.textContent =
+      expense.date +
+      (
+        expense.memo
+          ? "　" + expense.memo
+          : ""
+      );
+
+    info.appendChild(category);
+    info.appendChild(detail);
+
+    const amount =
+      document.createElement("div");
+
+    amount.className =
+      "expense-amount";
+
+    amount.textContent =
+      formatYen(expense.amount);
+
+    const editButton =
+      document.createElement("button");
+
+    editButton.className =
+      "action-button";
+
+    editButton.textContent =
+      "✏️";
+
+    editButton.addEventListener(
+      "click",
+      () => startEdit(expense.id)
+    );
+
+    const deleteButton =
+      document.createElement("button");
+
+    deleteButton.className =
+      "action-button delete-button";
+
+    deleteButton.textContent =
+      "🗑️";
+
+    deleteButton.addEventListener(
+      "click",
+      () => deleteExpense(expense.id)
+    );
+
+    item.appendChild(info);
+    item.appendChild(amount);
+    item.appendChild(editButton);
+    item.appendChild(deleteButton);
+
+    expenseList.appendChild(item);
+
+  });
+
+  countElement.textContent =
+    `${list.length}件表示 / 保存データ ${expenses.length}件`;
+
+  updateTotal();
+  updateCategorySummary();
+  updateMonthTitle();
+}
 
 function addExpense() {
 
   const amount =
-    Number(
-      amountInput.value
-    );
+    Number(amountInput.value);
 
+  if (!amount || amount <= 0) {
 
-  if (
-    !amount ||
-    amount <= 0
-  ) {
-
-    alert(
-      "金額を入力してください"
-    );
+    alert("金額を入力してください");
 
     amountInput.focus();
 
     return;
-
   }
 
+  if (!dateInput.value) {
 
-  const expense = {
+    alert("日付を入力してください");
 
-    id:
-      Date.now(),
+    return;
+  }
 
-    amount:
+  if (editingId !== null) {
 
-      amount,
+    const expense =
+      expenses.find(
+        e => e.id === editingId
+      );
 
-    category:
+    if (expense) {
 
-      categoryInput.value,
+      expense.amount = amount;
+      expense.category =
+        categoryInput.value;
+      expense.date =
+        dateInput.value;
+      expense.memo =
+        memoInput.value.trim();
 
-    date:
+    }
 
-      dateInput.value,
+    editingId = null;
 
-    memo:
+    addButton.textContent =
+      "＋ 支出を追加";
 
-      memoInput.value.trim()
+    cancelButton.style.display =
+      "none";
 
-  };
+  } else {
 
+    expenses.push({
 
-  expenses.push(
-    expense
-  );
+      id: Date.now(),
 
+      amount: amount,
+
+      category:
+        categoryInput.value,
+
+      date:
+        dateInput.value,
+
+      memo:
+        memoInput.value.trim()
+
+    });
+
+  }
 
   saveExpenses();
 
   renderExpenses();
 
-
-  /*
-    入力欄をリセット
-  */
-
-  amountInput.value =
-    "";
-
-  memoInput.value =
-    "";
-
-
-  amountInput.focus();
+  clearForm();
 
 }
 
+function clearForm() {
 
-/* =========================
-   ボタン
-========================= */
+  amountInput.value = "";
+  memoInput.value = "";
+  dateInput.value = getTodayString();
+
+}
+
+function startEdit(id) {
+
+  const expense =
+    expenses.find(
+      e => e.id === id
+    );
+
+  if (!expense) return;
+
+  editingId = id;
+
+  amountInput.value =
+    expense.amount;
+
+  categoryInput.value =
+    expense.category;
+
+  dateInput.value =
+    expense.date;
+
+  memoInput.value =
+    expense.memo;
+
+  addButton.textContent =
+    "✓ 編集内容を保存";
+
+  cancelButton.style.display =
+    "block";
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+}
+
+function cancelEdit() {
+
+  editingId = null;
+
+  addButton.textContent =
+    "＋ 支出を追加";
+
+  cancelButton.style.display =
+    "none";
+
+  clearForm();
+
+}
+
+function deleteExpense(id) {
+
+  const expense =
+    expenses.find(
+      e => e.id === id
+    );
+
+  if (!expense) return;
+
+  const ok =
+    confirm(
+      `${formatYen(expense.amount)}の支出を削除しますか？`
+    );
+
+  if (!ok) return;
+
+  expenses =
+    expenses.filter(
+      e => e.id !== id
+    );
+
+  saveExpenses();
+
+  renderExpenses();
+
+}
+
+function changeMonth(amount) {
+
+  selectedMonth =
+    new Date(
+      selectedMonth.getFullYear(),
+      selectedMonth.getMonth() + amount,
+      1
+    );
+
+  renderExpenses();
+
+}
 
 addButton.addEventListener(
   "click",
   addExpense
 );
 
+cancelButton.addEventListener(
+  "click",
+  cancelEdit
+);
 
-/* =========================
-   Enterでも追加
-========================= */
+prevMonth.addEventListener(
+  "click",
+  () => changeMonth(-1)
+);
+
+nextMonth.addEventListener(
+  "click",
+  () => changeMonth(1)
+);
+
+searchInput.addEventListener(
+  "input",
+  renderExpenses
+);
+
+filterCategory.addEventListener(
+  "change",
+  renderExpenses
+);
 
 memoInput.addEventListener(
   "keydown",
   event => {
 
-    if (
-      event.key === "Enter"
-    ) {
-
+    if (event.key === "Enter") {
       addExpense();
-
     }
 
   }
 );
 
-
-/* =========================
-   起動
-========================= */
-
 renderExpenses();
 
 </script>
 
-
 </body>
-
 </html>
