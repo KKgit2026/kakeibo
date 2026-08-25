@@ -41,7 +41,6 @@ h1 {
 .month-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
   margin-bottom: 12px;
 }
@@ -63,30 +62,45 @@ h1 {
   font-weight: bold;
 }
 
-/* 合計 */
-.summary {
-  padding: 18px;
+/* サマリー */
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
   margin-bottom: 12px;
-  border-radius: 16px;
+}
+
+.summary-card {
+  padding: 13px 7px;
+  border-radius: 14px;
   background: #1f2937;
   text-align: center;
 }
 
 .summary-label {
   color: #9ca3af;
-  font-size: 13px;
+  font-size: 11px;
 }
 
 .summary-amount {
   margin-top: 4px;
-  font-size: 31px;
+  font-size: 18px;
   font-weight: bold;
 }
 
-/* カテゴリ集計 */
-.category-summary {
+.balance-card {
+  grid-column: 1 / -1;
+  padding: 18px;
+}
+
+.balance-card .summary-amount {
+  font-size: 29px;
+}
+
+/* フォーム */
+.form {
   margin-bottom: 12px;
-  padding: 15px;
+  padding: 16px;
   border-radius: 16px;
   background: #1f2937;
 }
@@ -97,24 +111,27 @@ h1 {
   font-weight: bold;
 }
 
-.category-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 7px 0;
-  border-bottom: 1px solid #374151;
-  font-size: 14px;
-}
-
-.category-row:last-child {
-  border-bottom: none;
-}
-
-/* 入力 */
-.form {
+.type-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
   margin-bottom: 12px;
-  padding: 16px;
-  border-radius: 16px;
-  background: #1f2937;
+}
+
+.type-button {
+  padding: 11px;
+  border: 2px solid #374151;
+  border-radius: 10px;
+  background: #111827;
+  color: #9ca3af;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.type-button.active {
+  border-color: #3b82f6;
+  color: #fff;
+  background: #1e3a5f;
 }
 
 .field {
@@ -168,13 +185,32 @@ select:focus {
   font-size: 15px;
 }
 
-/* 保存表示 */
 .save-status {
   min-height: 18px;
   margin-top: 8px;
   color: #6ee7b7;
   font-size: 12px;
   text-align: center;
+}
+
+/* カテゴリ */
+.category-summary {
+  margin-bottom: 12px;
+  padding: 15px;
+  border-radius: 16px;
+  background: #1f2937;
+}
+
+.category-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid #374151;
+  font-size: 14px;
+}
+
+.category-row:last-child {
+  border-bottom: none;
 }
 
 /* 検索 */
@@ -208,7 +244,7 @@ select:focus {
 .expense {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   padding: 12px 0;
   border-bottom: 1px solid #374151;
 }
@@ -240,6 +276,14 @@ select:focus {
   font-size: 15px;
   font-weight: bold;
   white-space: nowrap;
+}
+
+.income-amount {
+  color: #6ee7b7;
+}
+
+.expense-amount-red {
+  color: #fca5a5;
 }
 
 .action-button {
@@ -276,12 +320,16 @@ select:focus {
     padding: 12px 9px 25px;
   }
 
-  .filter-row select {
-    width: 105px;
+  .summary-amount {
+    font-size: 16px;
   }
 
-  .summary-amount {
+  .balance-card .summary-amount {
     font-size: 27px;
+  }
+
+  .filter-row select {
+    width: 105px;
   }
 }
 </style>
@@ -293,36 +341,90 @@ select:focus {
 
   <h1>💰 家計簿</h1>
 
+  <!-- 月切り替え -->
   <div class="month-bar">
     <button class="month-button" id="prevMonth">‹</button>
+
     <div class="month-title" id="monthTitle"></div>
+
     <button class="month-button" id="nextMonth">›</button>
   </div>
 
-  <div class="summary">
-    <div class="summary-label">表示中の月の支出</div>
-    <div class="summary-amount" id="total">¥0</div>
+  <!-- サマリー -->
+  <div class="summary-grid">
+
+    <div class="summary-card">
+      <div class="summary-label">収入</div>
+      <div class="summary-amount income-amount" id="incomeTotal">
+        ¥0
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-label">支出</div>
+      <div class="summary-amount expense-amount-red" id="expenseTotal">
+        ¥0
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-label">件数</div>
+      <div class="summary-amount" id="entryCount">
+        0件
+      </div>
+    </div>
+
+    <div class="summary-card balance-card">
+      <div class="summary-label">残高</div>
+      <div class="summary-amount" id="balance">
+        ¥0
+      </div>
+    </div>
+
   </div>
 
-  <div class="category-summary">
-    <div class="section-title">📊 カテゴリ別</div>
-    <div id="categorySummary"></div>
-  </div>
-
+  <!-- 入力 -->
   <div class="form">
 
     <div class="section-title" id="formTitle">
       支出を追加
     </div>
 
-    <div class="field">
-      <label>金額</label>
-      <input id="amount" type="number" inputmode="numeric" placeholder="例：1280">
+    <div class="type-buttons">
+
+      <button
+        class="type-button active"
+        id="expenseTypeButton"
+      >
+        💸 支出
+      </button>
+
+      <button
+        class="type-button"
+        id="incomeTypeButton"
+      >
+        💵 収入
+      </button>
+
     </div>
 
     <div class="field">
+      <label>金額</label>
+
+      <input
+        id="amount"
+        type="number"
+        inputmode="numeric"
+        placeholder="例：1280"
+      >
+    </div>
+
+    <div class="field" id="categoryField">
+
       <label>カテゴリ</label>
+
       <select id="category">
+
         <option value="食費">🍚 食費</option>
         <option value="日用品">🛒 日用品</option>
         <option value="交通費">🚃 交通費</option>
@@ -330,33 +432,72 @@ select:focus {
         <option value="光熱費">💡 光熱費</option>
         <option value="通信費">📱 通信費</option>
         <option value="その他">📦 その他</option>
+
       </select>
+
     </div>
 
     <div class="field">
+
       <label>日付</label>
-      <input id="date" type="date">
+
+      <input
+        id="date"
+        type="date"
+      >
+
     </div>
 
     <div class="field">
+
       <label>メモ</label>
-      <input id="memo" type="text" placeholder="例：スーパー">
+
+      <input
+        id="memo"
+        type="text"
+        placeholder="例：スーパー"
+      >
+
     </div>
 
-    <button class="add-button" id="addButton">
+    <button
+      class="add-button"
+      id="addButton"
+    >
       ＋ 支出を追加
     </button>
 
-    <button class="cancel-button" id="cancelButton">
+    <button
+      class="cancel-button"
+      id="cancelButton"
+    >
       編集をキャンセル
     </button>
 
-    <div class="save-status" id="saveStatus"></div>
+    <div
+      class="save-status"
+      id="saveStatus"
+    ></div>
+
   </div>
 
+  <!-- カテゴリ集計 -->
+  <div class="category-summary">
+
+    <div class="section-title">
+      📊 カテゴリ別支出
+    </div>
+
+    <div id="categorySummary"></div>
+
+  </div>
+
+  <!-- 検索 -->
   <div class="filter-box">
 
-    <div class="section-title">🔎 検索・絞り込み</div>
+    <div class="section-title">
+      🔎 検索・絞り込み
+    </div>
 
     <div class="filter-row">
 
@@ -367,7 +508,11 @@ select:focus {
       >
 
       <select id="filterCategory">
-        <option value="すべて">すべて</option>
+
+        <option value="すべて">
+          すべて
+        </option>
+
         <option value="食費">食費</option>
         <option value="日用品">日用品</option>
         <option value="交通費">交通費</option>
@@ -375,18 +520,26 @@ select:focus {
         <option value="光熱費">光熱費</option>
         <option value="通信費">通信費</option>
         <option value="その他">その他</option>
+
       </select>
 
     </div>
+
   </div>
 
+  <!-- 一覧 -->
   <div class="list">
 
-    <div class="section-title">📋 支出一覧</div>
+    <div class="section-title">
+      📋 明細
+    </div>
 
-    <div id="expenseList"></div>
+    <div id="entryList"></div>
 
-    <div class="count" id="count"></div>
+    <div
+      class="count"
+      id="count"
+    ></div>
 
   </div>
 
@@ -394,35 +547,104 @@ select:focus {
 
 <script>
 
-const STORAGE_KEY = "myHouseholdExpenses";
+const STORAGE_KEY =
+  "myHouseholdExpenses";
 
-const amountInput = document.getElementById("amount");
-const categoryInput = document.getElementById("category");
-const dateInput = document.getElementById("date");
-const memoInput = document.getElementById("memo");
+/* 要素 */
+const amountInput =
+  document.getElementById("amount");
 
-const addButton = document.getElementById("addButton");
-const cancelButton = document.getElementById("cancelButton");
+const categoryInput =
+  document.getElementById("category");
 
-const expenseList = document.getElementById("expenseList");
-const totalElement = document.getElementById("total");
-const categorySummary = document.getElementById("categorySummary");
-const saveStatus = document.getElementById("saveStatus");
-const countElement = document.getElementById("count");
+const dateInput =
+  document.getElementById("date");
 
-const monthTitle = document.getElementById("monthTitle");
-const prevMonth = document.getElementById("prevMonth");
-const nextMonth = document.getElementById("nextMonth");
+const memoInput =
+  document.getElementById("memo");
 
-const searchInput = document.getElementById("search");
-const filterCategory = document.getElementById("filterCategory");
+const addButton =
+  document.getElementById("addButton");
 
-let expenses = JSON.parse(
-  localStorage.getItem(STORAGE_KEY)
-) || [];
+const cancelButton =
+  document.getElementById("cancelButton");
 
-let selectedMonth = new Date();
-let editingId = null;
+const expenseTypeButton =
+  document.getElementById("expenseTypeButton");
+
+const incomeTypeButton =
+  document.getElementById("incomeTypeButton");
+
+const categoryField =
+  document.getElementById("categoryField");
+
+const entryList =
+  document.getElementById("entryList");
+
+const incomeTotal =
+  document.getElementById("incomeTotal");
+
+const expenseTotal =
+  document.getElementById("expenseTotal");
+
+const balance =
+  document.getElementById("balance");
+
+const entryCount =
+  document.getElementById("entryCount");
+
+const categorySummary =
+  document.getElementById("categorySummary");
+
+const saveStatus =
+  document.getElementById("saveStatus");
+
+const monthTitle =
+  document.getElementById("monthTitle");
+
+const searchInput =
+  document.getElementById("search");
+
+const filterCategory =
+  document.getElementById("filterCategory");
+
+const countElement =
+  document.getElementById("count");
+
+const prevMonth =
+  document.getElementById("prevMonth");
+
+const nextMonth =
+  document.getElementById("nextMonth");
+
+/* データ */
+let entries =
+  JSON.parse(
+    localStorage.getItem(
+      STORAGE_KEY
+    )
+  ) || [];
+
+/*
+  今までの支出データには type がないため、
+  type がないものは支出として扱う。
+*/
+entries = entries.map(
+  entry => ({
+    ...entry,
+    type:
+      entry.type || "expense"
+  })
+);
+
+let selectedMonth =
+  new Date();
+
+let editingId =
+  null;
+
+let currentType =
+  "expense";
 
 const categories = [
   "食費",
@@ -434,121 +656,202 @@ const categories = [
   "その他"
 ];
 
-function formatYen(value) {
-  return "¥" + Number(value).toLocaleString("ja-JP");
-}
-
+/* 今日 */
 function getTodayString() {
-  const d = new Date();
+
+  const d =
+    new Date();
 
   return (
     d.getFullYear() +
     "-" +
-    String(d.getMonth() + 1).padStart(2, "0") +
+    String(
+      d.getMonth() + 1
+    ).padStart(2, "0") +
     "-" +
-    String(d.getDate()).padStart(2, "0")
+    String(
+      d.getDate()
+    ).padStart(2, "0")
   );
 }
 
-dateInput.value = getTodayString();
+dateInput.value =
+  getTodayString();
 
-function saveExpenses() {
+/* 金額 */
+function formatYen(value) {
+
+  return (
+    "¥" +
+    Number(value)
+      .toLocaleString(
+        "ja-JP"
+      )
+  );
+}
+
+/* 保存 */
+function saveEntries() {
 
   localStorage.setItem(
     STORAGE_KEY,
-    JSON.stringify(expenses)
+    JSON.stringify(entries)
   );
 
   saveStatus.textContent =
-    `✓ 自動保存しました　保存データ：${expenses.length}件`;
+    `✓ 自動保存しました　保存データ：${entries.length}件`;
 
-  setTimeout(() => {
-    saveStatus.textContent = "";
-  }, 2500);
+  setTimeout(
+    () => {
+      saveStatus.textContent = "";
+    },
+    2500
+  );
 }
 
+/* 月キー */
 function getMonthKey(date) {
 
-  const d = new Date(date);
+  const d =
+    new Date(date);
 
   return (
     d.getFullYear() +
     "-" +
-    String(d.getMonth() + 1).padStart(2, "0")
+    String(
+      d.getMonth() + 1
+    ).padStart(2, "0")
   );
 }
 
+/* 選択月 */
 function getSelectedMonthKey() {
 
   return (
     selectedMonth.getFullYear() +
     "-" +
-    String(selectedMonth.getMonth() + 1).padStart(2, "0")
+    String(
+      selectedMonth.getMonth() + 1
+    ).padStart(2, "0")
   );
 }
 
+/* 月表示 */
 function updateMonthTitle() {
 
   monthTitle.textContent =
-    `${selectedMonth.getFullYear()}年${selectedMonth.getMonth() + 1}月`;
-
+    `${selectedMonth.getFullYear()}年` +
+    `${selectedMonth.getMonth() + 1}月`;
 }
 
-function getMonthExpenses() {
+/* 選択月のデータ */
+function getMonthEntries() {
 
-  const key = getSelectedMonthKey();
+  const key =
+    getSelectedMonthKey();
 
-  return expenses.filter(
-    expense =>
-      getMonthKey(expense.date) === key
+  return entries.filter(
+    entry =>
+      getMonthKey(
+        entry.date
+      ) === key
   );
 }
 
-function updateTotal() {
+/* サマリー */
+function updateSummary() {
 
-  const monthExpenses =
-    getMonthExpenses();
+  const monthEntries =
+    getMonthEntries();
 
-  const total =
-    monthExpenses.reduce(
-      (sum, expense) =>
-        sum + Number(expense.amount),
-      0
+  let income = 0;
+  let expense = 0;
+
+  monthEntries.forEach(
+    entry => {
+
+      if (
+        entry.type === "income"
+      ) {
+
+        income +=
+          Number(entry.amount);
+
+      } else {
+
+        expense +=
+          Number(entry.amount);
+
+      }
+
+    }
+  );
+
+  incomeTotal.textContent =
+    formatYen(income);
+
+  expenseTotal.textContent =
+    formatYen(expense);
+
+  balance.textContent =
+    formatYen(
+      income - expense
     );
 
-  totalElement.textContent =
-    formatYen(total);
+  entryCount.textContent =
+    monthEntries.length +
+    "件";
 }
 
+/* カテゴリ */
 function updateCategorySummary() {
 
-  const monthExpenses =
-    getMonthExpenses();
-
-  categorySummary.innerHTML = "";
+  const monthEntries =
+    getMonthEntries()
+      .filter(
+        entry =>
+          entry.type !== "income"
+      );
 
   const totals = {};
 
-  categories.forEach(category => {
-    totals[category] = 0;
-  });
-
-  monthExpenses.forEach(expense => {
-
-    if (totals[expense.category] !== undefined) {
-      totals[expense.category] +=
-        Number(expense.amount);
+  categories.forEach(
+    category => {
+      totals[category] = 0;
     }
+  );
 
-  });
+  monthEntries.forEach(
+    entry => {
 
-  const usedCategories =
+      if (
+        totals[
+          entry.category
+        ] !== undefined
+      ) {
+
+        totals[
+          entry.category
+        ] +=
+          Number(entry.amount);
+
+      }
+
+    }
+  );
+
+  categorySummary.innerHTML =
+    "";
+
+  const used =
     categories.filter(
       category =>
         totals[category] > 0
     );
 
-  if (usedCategories.length === 0) {
+  if (
+    used.length === 0
+  ) {
 
     categorySummary.innerHTML =
       `<div class="empty">
@@ -558,27 +861,38 @@ function updateCategorySummary() {
     return;
   }
 
-  usedCategories.forEach(category => {
+  used.forEach(
+    category => {
 
-    const row =
-      document.createElement("div");
+      const row =
+        document.createElement(
+          "div"
+        );
 
-    row.className =
-      "category-row";
+      row.className =
+        "category-row";
 
-    row.innerHTML =
-      `<span>${category}</span>
-       <strong>${formatYen(totals[category])}</strong>`;
+      row.innerHTML =
+        `<span>${category}</span>
+         <strong>
+           ${formatYen(
+             totals[category]
+           )}
+         </strong>`;
 
-    categorySummary.appendChild(row);
+      categorySummary.appendChild(
+        row
+      );
 
-  });
+    }
+  );
 }
 
-function getFilteredExpenses() {
+/* フィルター */
+function getFilteredEntries() {
 
   let list =
-    getMonthExpenses();
+    getMonthEntries();
 
   const search =
     searchInput.value
@@ -590,209 +904,367 @@ function getFilteredExpenses() {
 
   if (search) {
 
-    list = list.filter(expense => {
+    list =
+      list.filter(
+        entry => {
 
-      const text =
-        (
-          expense.category +
-          " " +
-          expense.memo +
-          " " +
-          expense.date
-        ).toLowerCase();
+          const text =
+            (
+              entry.category +
+              " " +
+              entry.memo +
+              " " +
+              entry.date +
+              " " +
+              (
+                entry.type ===
+                "income"
+                  ? "収入"
+                  : "支出"
+              )
+            )
+            .toLowerCase();
 
-      return text.includes(search);
+          return text.includes(
+            search
+          );
 
-    });
-
+        }
+      );
   }
 
   if (
-    selectedCategory !== "すべて"
+    selectedCategory !==
+    "すべて"
   ) {
 
-    list = list.filter(
-      expense =>
-        expense.category ===
-        selectedCategory
-    );
+    list =
+      list.filter(
+        entry =>
+          entry.category ===
+          selectedCategory
+      );
 
   }
 
   return list.sort(
     (a, b) =>
-      b.date.localeCompare(a.date) ||
+      b.date.localeCompare(
+        a.date
+      ) ||
       b.id - a.id
   );
 }
 
-function renderExpenses() {
+/* 一覧 */
+function renderEntries() {
 
-  expenseList.innerHTML = "";
+  entryList.innerHTML =
+    "";
 
   const list =
-    getFilteredExpenses();
+    getFilteredEntries();
 
-  if (list.length === 0) {
+  if (
+    list.length === 0
+  ) {
 
-    expenseList.innerHTML =
+    entryList.innerHTML =
       `<div class="empty">
-        該当する支出はありません
+        該当するデータはありません
       </div>`;
 
   }
 
-  list.forEach(expense => {
+  list.forEach(
+    entry => {
 
-    const item =
-      document.createElement("div");
+      const item =
+        document.createElement(
+          "div"
+        );
 
-    item.className = "expense";
+      item.className =
+        "expense";
 
-    const info =
-      document.createElement("div");
+      const info =
+        document.createElement(
+          "div"
+        );
 
-    info.className =
-      "expense-info";
+      info.className =
+        "expense-info";
 
-    const category =
-      document.createElement("div");
+      const category =
+        document.createElement(
+          "div"
+        );
 
-    category.className =
-      "expense-category";
+      category.className =
+        "expense-category";
 
-    category.textContent =
-      expense.category;
+      category.textContent =
+        entry.type === "income"
+          ? "💵 収入"
+          : entry.category;
 
-    const detail =
-      document.createElement("div");
+      const detail =
+        document.createElement(
+          "div"
+        );
 
-    detail.className =
-      "expense-detail";
+      detail.className =
+        "expense-detail";
 
-    detail.textContent =
-      expense.date +
-      (
-        expense.memo
-          ? "　" + expense.memo
-          : ""
+      detail.textContent =
+        entry.date +
+        (
+          entry.memo
+            ? "　" +
+              entry.memo
+            : ""
+        );
+
+      info.appendChild(
+        category
       );
 
-    info.appendChild(category);
-    info.appendChild(detail);
+      info.appendChild(
+        detail
+      );
 
-    const amount =
-      document.createElement("div");
+      const amount =
+        document.createElement(
+          "div"
+        );
 
-    amount.className =
-      "expense-amount";
+      amount.className =
+        "expense-amount " +
+        (
+          entry.type === "income"
+            ? "income-amount"
+            : "expense-amount-red"
+        );
 
-    amount.textContent =
-      formatYen(expense.amount);
+      amount.textContent =
+        (
+          entry.type === "income"
+            ? "+"
+            : "-"
+        ) +
+        formatYen(
+          entry.amount
+        );
 
-    const editButton =
-      document.createElement("button");
+      const editButton =
+        document.createElement(
+          "button"
+        );
 
-    editButton.className =
-      "action-button";
+      editButton.className =
+        "action-button";
 
-    editButton.textContent =
-      "✏️";
+      editButton.textContent =
+        "✏️";
 
-    editButton.addEventListener(
-      "click",
-      () => startEdit(expense.id)
-    );
+      editButton.addEventListener(
+        "click",
+        () =>
+          startEdit(entry.id)
+      );
 
-    const deleteButton =
-      document.createElement("button");
+      const deleteButton =
+        document.createElement(
+          "button"
+        );
 
-    deleteButton.className =
-      "action-button delete-button";
+      deleteButton.className =
+        "action-button delete-button";
 
-    deleteButton.textContent =
-      "🗑️";
+      deleteButton.textContent =
+        "🗑️";
 
-    deleteButton.addEventListener(
-      "click",
-      () => deleteExpense(expense.id)
-    );
+      deleteButton.addEventListener(
+        "click",
+        () =>
+          deleteEntry(entry.id)
+      );
 
-    item.appendChild(info);
-    item.appendChild(amount);
-    item.appendChild(editButton);
-    item.appendChild(deleteButton);
+      item.appendChild(
+        info
+      );
 
-    expenseList.appendChild(item);
+      item.appendChild(
+        amount
+      );
 
-  });
+      item.appendChild(
+        editButton
+      );
+
+      item.appendChild(
+        deleteButton
+      );
+
+      entryList.appendChild(
+        item
+      );
+
+    }
+  );
 
   countElement.textContent =
-    `${list.length}件表示 / 保存データ ${expenses.length}件`;
+    `${list.length}件表示 / 保存データ ${entries.length}件`;
 
-  updateTotal();
+  updateSummary();
   updateCategorySummary();
   updateMonthTitle();
 }
 
-function addExpense() {
+/* タイプ切り替え */
+function setType(type) {
+
+  currentType =
+    type;
+
+  if (
+    type === "income"
+  ) {
+
+    incomeTypeButton.classList.add(
+      "active"
+    );
+
+    expenseTypeButton.classList.remove(
+      "active"
+    );
+
+    categoryField.style.display =
+      "none";
+
+    document.getElementById(
+      "formTitle"
+    ).textContent =
+      "収入を追加";
+
+    addButton.textContent =
+      "＋ 収入を追加";
+
+  } else {
+
+    expenseTypeButton.classList.add(
+      "active"
+    );
+
+    incomeTypeButton.classList.remove(
+      "active"
+    );
+
+    categoryField.style.display =
+      "block";
+
+    document.getElementById(
+      "formTitle"
+    ).textContent =
+      "支出を追加";
+
+    addButton.textContent =
+      "＋ 支出を追加";
+
+  }
+
+}
+
+/* 追加・編集 */
+function addEntry() {
 
   const amount =
-    Number(amountInput.value);
+    Number(
+      amountInput.value
+    );
 
-  if (!amount || amount <= 0) {
+  if (
+    !amount ||
+    amount <= 0
+  ) {
 
-    alert("金額を入力してください");
+    alert(
+      "金額を入力してください"
+    );
 
     amountInput.focus();
 
     return;
   }
 
-  if (!dateInput.value) {
+  if (
+    !dateInput.value
+  ) {
 
-    alert("日付を入力してください");
+    alert(
+      "日付を入力してください"
+    );
 
     return;
   }
 
-  if (editingId !== null) {
+  if (
+    editingId !== null
+  ) {
 
-    const expense =
-      expenses.find(
-        e => e.id === editingId
+    const entry =
+      entries.find(
+        e =>
+          e.id ===
+          editingId
       );
 
-    if (expense) {
+    if (entry) {
 
-      expense.amount = amount;
-      expense.category =
-        categoryInput.value;
-      expense.date =
+      entry.amount =
+        amount;
+
+      entry.type =
+        currentType;
+
+      entry.category =
+        currentType ===
+        "income"
+          ? "収入"
+          : categoryInput.value;
+
+      entry.date =
         dateInput.value;
-      expense.memo =
+
+      entry.memo =
         memoInput.value.trim();
 
     }
 
-    editingId = null;
-
-    addButton.textContent =
-      "＋ 支出を追加";
+    editingId =
+      null;
 
     cancelButton.style.display =
       "none";
 
   } else {
 
-    expenses.push({
+    entries.push({
 
-      id: Date.now(),
+      id:
+        Date.now(),
 
-      amount: amount,
+      type:
+        currentType,
+
+      amount:
+        amount,
 
       category:
-        categoryInput.value,
+        currentType ===
+        "income"
+          ? "収入"
+          : categoryInput.value,
 
       date:
         dateInput.value,
@@ -804,44 +1276,66 @@ function addExpense() {
 
   }
 
-  saveExpenses();
+  saveEntries();
 
-  renderExpenses();
+  renderEntries();
 
   clearForm();
 
+  setType("expense");
 }
 
+/* フォームクリア */
 function clearForm() {
 
-  amountInput.value = "";
-  memoInput.value = "";
-  dateInput.value = getTodayString();
+  amountInput.value =
+    "";
+
+  memoInput.value =
+    "";
+
+  dateInput.value =
+    getTodayString();
 
 }
 
+/* 編集 */
 function startEdit(id) {
 
-  const expense =
-    expenses.find(
-      e => e.id === id
+  const entry =
+    entries.find(
+      e =>
+        e.id === id
     );
 
-  if (!expense) return;
+  if (!entry) return;
 
-  editingId = id;
+  editingId =
+    id;
 
   amountInput.value =
-    expense.amount;
-
-  categoryInput.value =
-    expense.category;
+    entry.amount;
 
   dateInput.value =
-    expense.date;
+    entry.date;
 
   memoInput.value =
-    expense.memo;
+    entry.memo;
+
+  if (
+    entry.type === "income"
+  ) {
+
+    setType("income");
+
+  } else {
+
+    setType("expense");
+
+    categoryInput.value =
+      entry.category;
+
+  }
 
   addButton.textContent =
     "✓ 編集内容を保存";
@@ -853,66 +1347,85 @@ function startEdit(id) {
     top: 0,
     behavior: "smooth"
   });
-
 }
 
+/* 編集キャンセル */
 function cancelEdit() {
 
-  editingId = null;
-
-  addButton.textContent =
-    "＋ 支出を追加";
+  editingId =
+    null;
 
   cancelButton.style.display =
     "none";
 
   clearForm();
 
+  setType("expense");
 }
 
-function deleteExpense(id) {
+/* 削除 */
+function deleteEntry(id) {
 
-  const expense =
-    expenses.find(
-      e => e.id === id
+  const entry =
+    entries.find(
+      e =>
+        e.id === id
     );
 
-  if (!expense) return;
+  if (!entry) return;
 
   const ok =
     confirm(
-      `${formatYen(expense.amount)}の支出を削除しますか？`
+      `${formatYen(entry.amount)}の` +
+      `${entry.type === "income"
+        ? "収入"
+        : "支出"
+      }を削除しますか？`
     );
 
   if (!ok) return;
 
-  expenses =
-    expenses.filter(
-      e => e.id !== id
+  entries =
+    entries.filter(
+      e =>
+        e.id !== id
     );
 
-  saveExpenses();
+  saveEntries();
 
-  renderExpenses();
-
+  renderEntries();
 }
 
+/* 月変更 */
 function changeMonth(amount) {
 
   selectedMonth =
     new Date(
       selectedMonth.getFullYear(),
-      selectedMonth.getMonth() + amount,
+      selectedMonth.getMonth() +
+        amount,
       1
     );
 
-  renderExpenses();
-
+  renderEntries();
 }
+
+/* イベント */
+expenseTypeButton.addEventListener(
+  "click",
+  () =>
+    setType("expense")
+);
+
+incomeTypeButton.addEventListener(
+  "click",
+  () =>
+    setType("income")
+);
 
 addButton.addEventListener(
   "click",
-  addExpense
+  addEntry
 );
 
 cancelButton.addEventListener(
@@ -922,36 +1435,44 @@ cancelButton.addEventListener(
 
 prevMonth.addEventListener(
   "click",
-  () => changeMonth(-1)
+  () =>
+    changeMonth(-1)
 );
 
 nextMonth.addEventListener(
   "click",
-  () => changeMonth(1)
+  () =>
+    changeMonth(1)
 );
 
 searchInput.addEventListener(
   "input",
-  renderExpenses
+  renderEntries
 );
 
 filterCategory.addEventListener(
   "change",
-  renderExpenses
+  renderEntries
 );
 
 memoInput.addEventListener(
   "keydown",
   event => {
 
-    if (event.key === "Enter") {
-      addExpense();
+    if (
+      event.key ===
+      "Enter"
+    ) {
+
+      addEntry();
+
     }
 
   }
 );
 
-renderExpenses();
+/* 起動 */
+renderEntries();
 
 </script>
 
